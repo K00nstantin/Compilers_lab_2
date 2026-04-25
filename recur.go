@@ -62,6 +62,10 @@ func simple_rec_removal(g grammar) grammar {
 	return newgrammar
 }
 
+// func left_rec_removal(g grammar) grammar {
+// 	return g
+// }
+
 func print_gram(g grammar) {
 	fmt.Println("Токены :")
 	for _, t := range g.Tokens {
