@@ -9,7 +9,7 @@ func main() {
 	print_gram(test_grammar)
 	fmt.Println()
 	fmt.Println()
-	new_grammar := simple_rec_removal(test_grammar)
+	new_grammar := left_rec_removal(test_grammar)
 	fmt.Printf("А вот новая грамматика: \n")
 	print_gram(new_grammar)
 

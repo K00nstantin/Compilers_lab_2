@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"unicode"
 )
 
 type grammar struct {
@@ -62,9 +63,41 @@ func simple_rec_removal(g grammar) grammar {
 	return newgrammar
 }
 
-// func left_rec_removal(g grammar) grammar {
-// 	return g
-// }
+func left_rec_removal(g grammar) grammar {
+	gram := g
+	ruleset := g.Rules
+	nonterminals := []token{}
+	terminals := []token{}
+	for _, t := range g.Tokens {
+		if unicode.IsUpper(rune(t.Name[0])) {
+			nonterminals = append(nonterminals, t)
+		} else {
+			terminals = append(terminals, t)
+		}
+	}
+	for i := 0; i < len(nonterminals); i++ {
+		for j := 0; j < i; j++ {
+			for _, rl := range ruleset {
+				if rl.Left == nonterminals[i] && rl.Right[0] == nonterminals[j] {
+					sigmas := []rule{}
+					for _, sec_r := range ruleset {
+						if sec_r.Left == nonterminals[j] {
+							sigmas = append(sigmas, sec_r)
+						}
+					}
+					rl.Right = sigmas[0].Right[1:]
+					for i := 1; i < len(sigmas); i++ {
+						ruleset[len(ruleset)] = rule{Left: nonterminals[i], Right: sigmas[i].Right[1:]}
+					}
+				}
+			}
+
+		}
+		gram.Rules = ruleset
+		gram = simple_rec_removal(gram)
+	}
+	return gram
+}
 
 func print_gram(g grammar) {
 	fmt.Println("Токены :")
