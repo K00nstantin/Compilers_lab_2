@@ -49,6 +49,9 @@ func simple_rec_removal(g grammar) grammar {
 						need_to_add_empty = true
 					} else {
 						beta := s_rule.Right
+						if beta[0].Is_empty {
+							beta = beta[1:]
+						}
 						beta = append(beta, big_A_new)
 						newgrammar.Rules[num] = rule{Left: big_A, Right: beta}
 					}
@@ -63,11 +66,11 @@ func simple_rec_removal(g grammar) grammar {
 	return newgrammar
 }
 
-func left_rec_removal(g grammar) grammar {
-	gram := g
-	ruleset := g.Rules
+func left_rec_elimination(g grammar) grammar {
+	newgram := g
 	nonterminals := []token{}
 	terminals := []token{}
+	allrules := []rule{}
 	for _, t := range g.Tokens {
 		if unicode.IsUpper(rune(t.Name[0])) {
 			nonterminals = append(nonterminals, t)
@@ -75,28 +78,36 @@ func left_rec_removal(g grammar) grammar {
 			terminals = append(terminals, t)
 		}
 	}
+	for _, r := range g.Rules {
+		allrules = append(allrules, r)
+	}
 	for i := 0; i < len(nonterminals); i++ {
 		for j := 0; j < i; j++ {
-			for _, rl := range ruleset {
-				if rl.Left == nonterminals[i] && rl.Right[0] == nonterminals[j] {
-					sigmas := []rule{}
-					for _, sec_r := range ruleset {
-						if sec_r.Left == nonterminals[j] {
-							sigmas = append(sigmas, sec_r)
+			for num, r := range allrules {
+				if r.Left == nonterminals[i] && r.Right[0] == nonterminals[j] {
+					combined_left_l := []token{}
+					combined_left_l = r.Right[1:]
+					temprules := []rule{}
+					for _, s_r := range allrules {
+						if s_r.Left == nonterminals[j] {
+							combined_left := s_r.Right
+							combined_left = append(combined_left, combined_left_l...)
+							temprules = append(temprules, rule{Left: nonterminals[i], Right: combined_left})
 						}
 					}
-					rl.Right = sigmas[0].Right[1:]
-					for i := 1; i < len(sigmas); i++ {
-						ruleset[len(ruleset)] = rule{Left: nonterminals[i], Right: sigmas[i].Right[1:]}
-					}
+					allrules[num] = temprules[0]
+					allrules = append(allrules, temprules[1:]...)
 				}
 			}
-
 		}
-		gram.Rules = ruleset
-		gram = simple_rec_removal(gram)
+		rule_map := make(map[int]rule)
+		for i, r := range allrules {
+			rule_map[i] = r
+		}
+		newgram.Rules = rule_map
+		newgram = simple_rec_removal(newgram)
 	}
-	return gram
+	return newgram
 }
 
 func print_gram(g grammar) {

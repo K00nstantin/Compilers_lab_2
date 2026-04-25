@@ -9,8 +9,11 @@ func main() {
 	print_gram(test_grammar)
 	fmt.Println()
 	fmt.Println()
-	new_grammar := left_rec_removal(test_grammar)
+	cnf_grammar := to_cnf(test_grammar)
+	new_grammar := left_rec_elimination(test_grammar)
 	fmt.Printf("А вот новая грамматика: \n")
 	print_gram(new_grammar)
-
+	fmt.Println("\n")
+	fmt.Println("Приведенная к форме Хомского: ")
+	print_gram(cnf_grammar)
 }

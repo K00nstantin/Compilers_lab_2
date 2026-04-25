@@ -1,12 +1,12 @@
 3
-E T F
-5
-+ * ( ) a
+S A B
+2
+a b
 6
-E -> E + T
-E -> T
-T -> T * F
-T -> F
-F -> a
-F -> ( E )
-E
+S -> a A b
+S -> B A
+A -> B B B
+A -> a
+B -> A S
+B -> b
+S
